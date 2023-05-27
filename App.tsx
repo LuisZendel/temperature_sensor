@@ -1,10 +1,18 @@
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
-import { Canvas, Line, Path, SkPath, vec } from "@shopify/react-native-skia";
+import {
+  Canvas,
+  Line,
+  Path,
+  SkPath,
+  useSVG,
+  vec,
+} from "@shopify/react-native-skia";
 import { animatedData, DataPoint, originalData } from "./Data";
 import { scaleLinear, line, curveBasis } from "d3";
 import { scaleTime } from "d3";
 import { Skia } from "@shopify/react-native-skia";
+import { useEffect, useState } from "react";
 interface GraphData {
   min: number;
   max: Number;
@@ -12,8 +20,17 @@ interface GraphData {
 }
 
 export default function App() {
+  const [sensorData, setSensorData] = useState([{ valueSensing: 0 }, { valueSensing: 1 }]);
+   
+  useEffect(() => {
+    fetch("http://192.168.100.203:3001/api/sensor/data")
+      .then((res) => res.json())
+      .then((data) => setSensorData(data));
+  }, []);
+
   const GRAPH_HEIGHT = 400;
   const GRAPH_WIDTH = 370;
+
   const makeGraph = (data: DataPoint[]): GraphData => {
     const min = Math.min(...data.map((val) => val.value));
     const max = Math.max(...data.map((val) => val.value));
@@ -72,6 +89,7 @@ export default function App() {
           style="stroke"
         />
       </Canvas>
+      <Text>{sensorData[0].valueSensing}</Text>
       <StatusBar style="auto" />
     </View>
   );
